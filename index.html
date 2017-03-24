@@ -11,15 +11,22 @@
                 position: absolute;
                 top: calc( 50% - 240px );
                 left: calc( 50% - 320px );
-                box-shadow: 0 0 10px rgba(0,0,0,0.5);
+                box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.8);
             }
         </STYLE>
         <SCRIPT type="text/javascript">
             window.onload = function() {
                 var canvas = document.getElementById("view");
-                var g = canvas.getContext("2d");
-                g.fillStyle = "green";
-                g.fillRect(20, 40, 600, 400);
+                var g = canvas.getContext("webgl");
+                try {
+                    g.clearColor(0.0, 0.0, 0.0, 1.0);
+                    g.enable(g.DEPTH_TEST);
+                    g.depthFunc(g.LEQUAL);
+                    g.clear(g.COLOR_BUFFER_BIT | g.DEPTH_BUFFER_BIT);
+                    g.viewport(0, 0, canvas.width, canvas.height);
+                } catch(e) {
+                    alert("WebGL не поддерживается");
+                }
             }
         </SCRIPT>
     </HEAD>
