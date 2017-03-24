@@ -14,9 +14,17 @@
                 box-shadow: 0 0 10px rgba(0,0,0,0.5);
             }
         </STYLE>
+        <SCRIPT type="text/javascript">
+            window.onload = function() {
+                var canvas = document.getElementById("view");
+                var g = canvas.getContext("2d");
+                g.fillStyle = "green";
+                g.fillRect(20, 40, 600, 400);
+            }
+        </SCRIPT>
     </HEAD>
     <BODY>
         <H1>Пример 3D сцены</H1>
-        <CANVAS id="3d" width="648" height="480">Нужна другая версия браузера</CANVAS>
+        <CANVAS id="view" width="648" height="480">Нужна другая версия браузера</CANVAS>
     </BODY>
 </HTML>
