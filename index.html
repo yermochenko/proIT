@@ -14,18 +14,90 @@
                 box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.8);
             }
         </STYLE>
+        <SCRIPT id="shader-fs" type="x-shader/x-fragment">
+            void main(void) {
+                gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+            }
+        </SCRIPT>
+        <SCRIPT id="shader-vs" type="x-shader/x-vertex">
+            attribute vec3 aVertexPosition;
+            void main(void) {
+                gl_Position = vec4(aVertexPosition, 1.0);
+            }
+        </SCRIPT>
         <SCRIPT type="text/javascript">
+            function getShader(g, type, id) {
+                var source = document.getElementById(id).innerHTML;
+                // создаем шейдер по типу
+                var shader = g.createShader(type);
+                // установка источника шейдера
+                g.shaderSource(shader, source);
+                // компилируем шейдер
+                g.compileShader(shader);
+                if(!g.getShaderParameter(shader, g.COMPILE_STATUS)) {
+                    alert("Ошибка компиляции шейдера: " + g.getShaderInfoLog(shader));
+                    g.deleteShader(shader);
+                    return null;
+                }
+                return shader;
+            }
+
+            function initShaders(g) {
+                var fragmentShader = getShader(g, g.FRAGMENT_SHADER, "shader-fs");
+                var vertexShader = getShader(g, g.VERTEX_SHADER, "shader-vs");
+                if(fragmentShader != null && vertexShader != null) {
+                    // создать шейдерную программу
+                    var shaderProgram = g.createProgram();
+                    g.attachShader(shaderProgram, vertexShader);
+                    g.attachShader(shaderProgram, fragmentShader);
+                    g.linkProgram(shaderProgram);
+                    // Если создать шейдерную программу не удалось, вывести предупреждение
+                    if(g.getProgramParameter(shaderProgram, g.LINK_STATUS)) {
+                        g.useProgram(shaderProgram);
+                        shaderProgram.vertexPositionAttribute = g.getAttribLocation(shaderProgram, "aVertexPosition");
+                        g.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+                        return shaderProgram;
+                    } else {
+                        alert("Ошибка инициализации шейдеров");
+                    }
+                }
+                return null;
+            }
+
+            function initBuffer(g) {
+                var buffer = g.createBuffer();
+                g.bindBuffer(g.ARRAY_BUFFER, buffer);
+                var vertices = [
+                     0.5,  0.5, 0.0,
+                    -0.5,  0.5, 0.0,
+                     0.5, -0.5, 0.0,
+                    -0.5, -0.5, 0.0
+                ];
+                g.bufferData(g.ARRAY_BUFFER, new Float32Array(vertices), g.STATIC_DRAW);
+                buffer.itemSize = 3;
+                buffer.numberOfItems = 4;
+                return buffer;
+            }
+
+            function drawScene(g, shaderProgram, buffer) {
+                g.viewport(0, 0, g.viewportWidth, g.viewportHeight);
+                g.clear(g.COLOR_BUFFER_BIT | g.DEPTH_BUFFER_BIT);
+                g.vertexAttribPointer(shaderProgram.vertexPositionAttribute, buffer.itemSize, g.FLOAT, false, 0, 0);
+                g.drawArrays(g.TRIANGLE_STRIP, 0, buffer.numberOfItems);
+            }
+
             window.onload = function() {
                 var canvas = document.getElementById("view");
-                var g = canvas.getContext("webgl");
                 try {
+                    var g = canvas.getContext("webgl");
+                    g.viewportWidth = canvas.width;
+                    g.viewportHeight = canvas.height;
+                    var shaders = initShaders(g);
+                    var buffer = initBuffer(g);
                     g.clearColor(0.0, 0.0, 0.0, 1.0);
-                    g.enable(g.DEPTH_TEST);
-                    g.depthFunc(g.LEQUAL);
-                    g.clear(g.COLOR_BUFFER_BIT | g.DEPTH_BUFFER_BIT);
-                    g.viewport(0, 0, canvas.width, canvas.height);
+                    drawScene(g, shaders, buffer);
                 } catch(e) {
-                    alert("WebGL не поддерживается");
+                    alert("WebGL не поддерживается" + e);
                 }
             }
         </SCRIPT>
