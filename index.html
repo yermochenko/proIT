@@ -45,7 +45,7 @@
                     geometry.faces.push(new THREE.Face3(0, 1, 2));
                     geometry.faces.push(new THREE.Face3(2, 3, 0));
                     // настройка материала - установка цвета
-                    material = new THREE.MeshBasicMaterial({ color: 0xff7f00, wireframe: false});
+                    material = new THREE.MeshBasicMaterial({ color: 0xff7f00, wireframe: true});
                     // настраиваем меш, который будет отображать куб
                     mesh = new THREE.Mesh(geometry, material);
                     scene.add(mesh);
